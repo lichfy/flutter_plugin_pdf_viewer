@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_advanced_networkimage/zoomable.dart';
+import 'package:photo_view/photo_view.dart';
 
 class PDFPage extends StatefulWidget {
   final String imgPath;
@@ -42,12 +42,13 @@ class _PDFPageState extends State<PDFPage> {
   Widget build(BuildContext context) {
     return Container(
         decoration: null,
-        child: ZoomableWidget(
-          zoomSteps: 3,
-          minScale: 1.0,
-          panLimit: 0.8,
-          maxScale: 3.0,
-          child: Image(image: provider),
+        child: PhotoView(
+          imageProvider: provider,
+          enableRotation: false,
+          maxScale: PhotoViewComputedScale.contained * 3,
+          initialScale: PhotoViewComputedScale.contained,
+          minScale: PhotoViewComputedScale.contained * 0.8,
+          backgroundDecoration: BoxDecoration(color: Colors.white),
         ));
   }
 }

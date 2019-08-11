@@ -12,7 +12,6 @@ class PDFViewer extends StatefulWidget {
   final IndicatorPosition indicatorPosition;
   final bool showIndicator;
   final bool showPicker;
-  final bool showNavigation;
   final PDFViewerTooltip tooltip;
 
   PDFViewer(
@@ -22,7 +21,6 @@ class PDFViewer extends StatefulWidget {
       this.indicatorBackground = Colors.black54,
       this.showIndicator = true,
       this.showPicker = true,
-      this.showNavigation = true,
       this.tooltip = const PDFViewerTooltip(),
       this.indicatorPosition = IndicatorPosition.topRight})
       : super(key: key);
@@ -123,7 +121,30 @@ class _PDFViewerState extends State<PDFViewer> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          _isLoading ? Center(child: CircularProgressIndicator()) : _page,
+          _isLoading ? Center(child: CircularProgressIndicator()) : GestureDetector(
+            onHorizontalDragEnd: (detail){
+              var speed = detail.primaryVelocity;
+              if (speed < -500){
+                if (_pageNumber == widget.document.count) return;
+
+                _pageNumber++;
+                if (widget.document.count < _pageNumber) {
+                  _pageNumber = widget.document.count;
+                }
+                _loadPage();
+              }else if (speed > 500){
+                if (_pageNumber == 1) return;
+
+                _pageNumber--;
+                if (1 > _pageNumber) {
+                  _pageNumber = 1;
+                }
+                _loadPage();
+              }
+
+            },
+            child: _page,
+          ),
           (widget.showIndicator && !_isLoading)
               ? _drawIndicator()
               : Container(),
@@ -139,65 +160,7 @@ class _PDFViewerState extends State<PDFViewer> {
               },
             )
           : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: (widget.showNavigation || widget.document.count > 1)
-          ? BottomAppBar(
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.first_page),
-                      tooltip: widget.tooltip.first,
-                      onPressed: () {
-                        _pageNumber = 1;
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.chevron_left),
-                      tooltip: widget.tooltip.previous,
-                      onPressed: () {
-                        _pageNumber--;
-                        if (1 > _pageNumber) {
-                          _pageNumber = 1;
-                        }
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  widget.showPicker
-                      ? Expanded(child: Text(''))
-                      : SizedBox(width: 1),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.chevron_right),
-                      tooltip: widget.tooltip.next,
-                      onPressed: () {
-                        _pageNumber++;
-                        if (widget.document.count < _pageNumber) {
-                          _pageNumber = widget.document.count;
-                        }
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: IconButton(
-                      icon: Icon(Icons.last_page),
-                      tooltip: widget.tooltip.last,
-                      onPressed: () {
-                        _pageNumber = widget.document.count;
-                        _loadPage();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Container(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,     
     );
   }
 }
