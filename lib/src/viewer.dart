@@ -150,7 +150,7 @@ class _PDFViewerState extends State<PDFViewer> {
               : Container(),
         ],
       ),
-      floatingActionButton: widget.showPicker
+      floatingActionButton: (widget.showPicker && widget.document.count > 2)
           ? FloatingActionButton(
               elevation: 4.0,
               tooltip: widget.tooltip.jump,
