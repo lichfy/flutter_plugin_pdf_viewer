@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_plugin_pdf_viewer/src/page.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class PDFDocument {
   static const MethodChannel _channel =
@@ -23,7 +22,7 @@ class PDFDocument {
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
-      document.count = document.count = int.parse(pageCount);
+      document.count = int.parse(pageCount);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
@@ -41,7 +40,7 @@ class PDFDocument {
     try {
       var pageCount =
           await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
-      document.count = document.count = int.parse(pageCount);
+      document.count = int.parse(pageCount);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
@@ -68,7 +67,7 @@ class PDFDocument {
     try {
       var pageCount = await _channel
           .invokeMethod('getNumberOfPages', {'filePath': file.path});
-      document.count = document.count = int.parse(pageCount);
+      document.count = int.parse(pageCount);
     } catch (e) {
       throw Exception('Error reading PDF!');
     }
@@ -85,13 +84,14 @@ class PDFDocument {
     return new PDFPage(data, page);
   }
 
-  // Stream all pages
-  Observable<PDFPage> getAll() {
-    return Future.forEach<PDFPage>(List(count), (i) async {
-      print(i);
-      final data = await _channel
-          .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
-      return new PDFPage(data, 1);
-    }).asStream();
+  Future<List<String>> getAll() async {
+      final list = List<String>();
+      for(int i = 0;i < count;i++){
+        final data = await _channel
+            .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i + 1});
+        list.add(data);
+      }
+
+      return list;
   }
 }

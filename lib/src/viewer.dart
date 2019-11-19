@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
+import 'package:flutter_plugin_pdf_viewer/src/pages.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'tooltip.dart';
 
@@ -31,57 +32,39 @@ class PDFViewer extends StatefulWidget {
 class _PDFViewerState extends State<PDFViewer> {
   bool _isLoading = true;
   int _pageNumber = 1;
-  int _oldPage = 0;
-  PDFPage _page;
-  List<PDFPage> _pages = List();
+  PDFPages _page;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _oldPage = 0;
+  void initState() {
+    super.initState();
     _pageNumber = 1;
     _isLoading = true;
-    _pages.clear();
-    _loadPage();
+
+    _initPage();
   }
 
-  @override
-  void didUpdateWidget(PDFViewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _oldPage = 0;
-    _pageNumber = 1;
-    _isLoading = true;
-    _pages.clear();
-    _loadPage();
-  }
-
-  _loadPage() async {
-    setState(() => _isLoading = true);
-    if (_oldPage == 0) {
-      _page = await widget.document.get(page: _pageNumber);
-    } else if (_oldPage != _pageNumber) {
-      _oldPage = _pageNumber;
-      _page = await widget.document.get(page: _pageNumber);
-    }
-    if(this.mounted) {
-      setState(() => _isLoading = false);
-    }
+  void _initPage() async {
+    final paths = await widget.document.getAll();
+    _page = PDFPages(paths: paths,changedIndex: (index){
+      setState(() {
+        _pageNumber = index + 1;
+      });
+    },);
+    setState(() => _isLoading = false);
   }
 
   Widget _drawIndicator() {
-    Widget child = GestureDetector(
-        onTap: _pickPage,
-        child: Container(
-            padding:
-                EdgeInsets.only(top: 4.0, left: 16.0, bottom: 4.0, right: 16.0),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4.0),
-                color: widget.indicatorBackground),
-            child: Text("$_pageNumber/${widget.document.count}",
-                style: TextStyle(
-                    color: widget.indicatorText,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w400))));
+    Widget child = Container(
+        padding:
+            EdgeInsets.only(top: 4.0, left: 16.0, bottom: 4.0, right: 16.0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4.0),
+            color: widget.indicatorBackground),
+        child: Text("$_pageNumber/${widget.document.count}",
+            style: TextStyle(
+                color: widget.indicatorText,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w400)));
 
     switch (widget.indicatorPosition) {
       case IndicatorPosition.topLeft:
@@ -97,70 +80,17 @@ class _PDFViewerState extends State<PDFViewer> {
     }
   }
 
-  _pickPage() {
-    showDialog<int>(
-        context: context,
-        builder: (BuildContext context) {
-          return NumberPickerDialog.integer(
-            title: Text(widget.tooltip.pick),
-            minValue: 1,
-            cancelWidget: Container(),
-            maxValue: widget.document.count,
-            initialIntegerValue: _pageNumber,
-          );
-        }).then((int value) {
-      if (value != null) {
-        _pageNumber = value;
-        _loadPage();
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          _isLoading ? Center(child: CircularProgressIndicator()) : GestureDetector(
-            onHorizontalDragEnd: (detail){
-              var speed = detail.primaryVelocity;
-              if (speed < -500){
-                if (_pageNumber == widget.document.count) return;
-
-                _pageNumber++;
-                if (widget.document.count < _pageNumber) {
-                  _pageNumber = widget.document.count;
-                }
-                _loadPage();
-              }else if (speed > 500){
-                if (_pageNumber == 1) return;
-
-                _pageNumber--;
-                if (1 > _pageNumber) {
-                  _pageNumber = 1;
-                }
-                _loadPage();
-              }
-
-            },
-            child: _page,
-          ),
+          _isLoading ? Center(child: CircularProgressIndicator()) : _page,
           (widget.showIndicator && !_isLoading)
               ? _drawIndicator()
               : Container(),
         ],
       ),
-      floatingActionButton: (widget.showPicker && widget.document.count > 2)
-          ? FloatingActionButton(
-              elevation: 4.0,
-              tooltip: widget.tooltip.jump,
-              child: Icon(Icons.view_carousel),
-              onPressed: () {
-                _pickPage();
-              },
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,     
     );
   }
 }
