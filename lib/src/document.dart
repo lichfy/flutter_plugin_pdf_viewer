@@ -84,14 +84,10 @@ class PDFDocument {
     return new PDFPage(data, page);
   }
 
-  Future<List<String>> getAll() async {
-      final list = List<String>();
-      for(int i = 0;i < count;i++){
-        final data = await _channel
-            .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i + 1});
-        list.add(data);
-      }
-
-      return list;
+  Future<String> getPage(int page) async {
+    assert(page > 0);
+    return await _channel
+        .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
   }
+
 }

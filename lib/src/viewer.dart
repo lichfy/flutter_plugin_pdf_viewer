@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
 import 'package:flutter_plugin_pdf_viewer/src/pages.dart';
-import 'package:numberpicker/numberpicker.dart';
 import 'tooltip.dart';
 
 enum IndicatorPosition { topLeft, topRight, bottomLeft, bottomRight }
@@ -30,7 +29,6 @@ class PDFViewer extends StatefulWidget {
 }
 
 class _PDFViewerState extends State<PDFViewer> {
-  bool _isLoading = true;
   int _pageNumber = 1;
   PDFPages _page;
 
@@ -38,19 +36,17 @@ class _PDFViewerState extends State<PDFViewer> {
   void initState() {
     super.initState();
     _pageNumber = 1;
-    _isLoading = true;
 
     _initPage();
   }
 
   void _initPage() async {
-    final paths = await widget.document.getAll();
-    _page = PDFPages(paths: paths,changedIndex: (index){
+    _page = PDFPages(document: widget.document,changedIndex: (index){
       setState(() {
         _pageNumber = index + 1;
       });
     },);
-    setState(() => _isLoading = false);
+    setState(() => {});
   }
 
   Widget _drawIndicator() {
@@ -85,8 +81,8 @@ class _PDFViewerState extends State<PDFViewer> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          _isLoading ? Center(child: CircularProgressIndicator()) : _page,
-          (widget.showIndicator && !_isLoading)
+          _page,
+          (widget.showIndicator)
               ? _drawIndicator()
               : Container(),
         ],
