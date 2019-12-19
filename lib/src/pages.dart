@@ -33,7 +33,11 @@ class _PDFPagesState extends State<PDFPages> {
   void _initPage() async {
     for (var i = 1; i <= widget.document.count; i++) {
       _paths.add(await widget.document.getPage(i));
-      setState(() {_isLoading = false;});
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -53,7 +57,7 @@ class _PDFPagesState extends State<PDFPages> {
               onPageChanged: (index) async {
                 if (widget.changedIndex != null) widget.changedIndex(index);
 
-                if (_paths.length <= index){
+                if (_paths.length <= index) {
                   setState(() {
                     _isLoading = true;
                   });

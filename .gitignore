@@ -7,3 +7,10 @@
 build/
 pubspec.lock
 example/pubspec.lock
+.idea/
+android/gradlew.bat
+android/gradlew
+android/gradle/wrapper/
+example/.flutter-plugins-dependencies
+example/assets/large.pdf
+example/ios/Flutter/flutter_export_environment.sh
