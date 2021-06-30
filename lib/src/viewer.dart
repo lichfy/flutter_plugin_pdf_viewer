@@ -15,8 +15,8 @@ class PDFViewer extends StatefulWidget {
   final PDFViewerTooltip tooltip;
 
   PDFViewer(
-      {Key key,
-      @required this.document,
+      {Key? key,
+      required this.document,
       this.indicatorText = Colors.white,
       this.indicatorBackground = Colors.black54,
       this.showIndicator = true,
@@ -30,7 +30,7 @@ class PDFViewer extends StatefulWidget {
 
 class _PDFViewerState extends State<PDFViewer> {
   int _pageNumber = 1;
-  PDFPages _page;
+  late PDFPages _page;
 
   @override
   void initState() {

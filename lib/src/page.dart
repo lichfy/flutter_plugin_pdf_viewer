@@ -14,7 +14,7 @@ class PDFPage extends StatefulWidget {
 }
 
 class _PDFPageState extends State<PDFPage> {
-  ImageProvider provider;
+  late ImageProvider provider;
 
   @override
   void didChangeDependencies() {

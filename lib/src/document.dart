@@ -10,8 +10,8 @@ class PDFDocument {
   static const MethodChannel _channel =
       const MethodChannel('flutter_plugin_pdf_viewer');
 
-  String _filePath;
-  int count;
+  late String _filePath;
+  late int count;
 
   /// Load a PDF File from a given File
   ///

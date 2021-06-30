@@ -11,17 +11,17 @@ typedef ChangedIndex(int index);
 
 ///加载多页后显示用，用相册模式，这样换页与缩放不会冲突
 class PDFPages extends StatefulWidget {
-  final ChangedIndex changedIndex;
+  final ChangedIndex? changedIndex;
   final PDFDocument document;
 
-  const PDFPages({Key key, this.changedIndex, this.document}) : super(key: key);
+  const PDFPages({Key? key, this.changedIndex,required this.document}) : super(key: key);
 
   @override
   _PDFPagesState createState() => _PDFPagesState();
 }
 
 class _PDFPagesState extends State<PDFPages> {
-  final List<String> _paths = List<String>();
+  final List<String> _paths = [];
   bool _isLoading = true;
 
   @override
@@ -55,7 +55,7 @@ class _PDFPagesState extends State<PDFPages> {
               itemCount: widget.document.count,
               backgroundDecoration: BoxDecoration(color: Colors.white),
               onPageChanged: (index) async {
-                if (widget.changedIndex != null) widget.changedIndex(index);
+                if (widget.changedIndex != null) widget.changedIndex!(index);
 
                 if (_paths.length <= index) {
                   setState(() {
